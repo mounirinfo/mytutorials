@@ -37,39 +37,20 @@ function calculateWinner(squares) {
       return (
             <Square 
                 value={this.props.squares[i]} 
-                onClick={() => this.handleClick(i)}
+                onClick={(i) => this.props.handleClick(i)}
             />
       );
     }
 
-    handleClick (i) {
-        const lSquares = this.props.squares.slice();
-        if(calculateWinner(lSquares) || lSquares[i]){
-          return;
-        }
-
-        lSquares[i] = (this.props.xIsNext)?'X':'O';
-        this.setState({
-          squares: lSquares,
-          xIsNext: !this.props.xIsNext,
-        });
-    }
 
 
   
     render() {
-      const winner = calculateWinner(this.props.squares);
-      let status;
-      if(winner){
-        status = winner +' a gagné';
-      }else{
-        status = 'Next player: '+(this.props.xIsNext ? 'X' : 'O');
-      }
       
   
       return (
         <div>
-          <div className="status">{status}</div>
+          
           <div className="board-row">
             {this.renderSquare(0)}
             {this.renderSquare(1)}
@@ -96,23 +77,49 @@ function calculateWinner(squares) {
       this.state={
         history:[{
           squares: Array(0).fill(null),
-          xIsNext: true,
+         
         }],
+        xIsNext: true,
       }
     }
     getHistorySnapshot(i){
       
     }
+
+    handleClick (i) {
+      let lHistory = this.state.history; 
+      const lSquares = lHistory[lHistory.length - 1].squares.slice();
+      if(calculateWinner(lSquares) || lSquares[i]){
+        return;
+      }
+
+      lSquares[i] = (this.state.xIsNext)?'X':'O';
+      lHistory.push(lSquares);
+      this.setState({
+        history: lHistory,
+        xIsNext: !this.state.xIsNext,
+      });
+  }
+
     render() {
+      const lHistory = this.state.history;
+      const current = lHistory[lHistory.length - 1];
+      const winner = calculateWinner(current);
+      let status;
+      if(winner){
+        status = winner +' a gagné';
+      }else{
+        status = 'Next player: '+(this.state.xIsNext ? 'X' : 'O');
+      }
       return (
         
         
         <div className="game">
           <div className="game-board">
-            <Board squares={this.state.history[this.state.history.length-1].squares} xIsNext={this.state.history[this.state.history.length-1].xIsNext} /> 
+            <Board squares={current} xIsNext={this.state.xIsNext} handleClick={(i) => this.handleClick(i)} /> 
           </div>
           <div className="game-info">
-            <div>{/* status */}</div>
+          <div className="status">{status}</div>
             <ol>{/* TODO */}</ol>
           </div>
         </div>
